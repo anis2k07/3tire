@@ -1,17 +1,18 @@
 provider "google" {
 credentials = file("anis.json")
 project = "anis020720"
-region = "us-central1"
+region  = "us-central1(lowa)"
+zone    = "us-central1-a"
 }
 
 resource "google_compute_instance" "default" {
   name         = "virtual-machine-from-terraform"
-  machine_type = "f1-micro"
+  machine_type = "e2-micro"
   zone         = "us-central1-a"
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "Debian GNU/Linux 11 (bullseye)"
     }
   }
 
