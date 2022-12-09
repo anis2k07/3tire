@@ -1,25 +1,51 @@
 provider "google" {
-project = "anis020720"
-region = "us-central1"
-zone = "us-central1-c"
+  project = var.gcp_project
+  region  = var.gcp_region
 }
 
-resource "google_compute_network" "vpc_network" {
-name = "terraform-network"
-}
-resource "google_compute_instance" "vm_instance" {
-name = "terraform-instance2"
-machine_type = "f1-micro"
-zone = "us-central1-c"
-boot_disk {
-initialize_params {
-image = "centos-cloud/centos-7"
-}
+data "google_compute_zones" "available" {
+  region  = var.gcp_region
+  project = var.gcp_project
 }
 
-network_interface {
-network = google_compute_network.vpc_network.name
-access_config {
+resource "google_compute_instance" "demo" {
+  name         = format("%s-%s-%d", var.instance_name, random_string.random-identifier.result, count.index)
+  count        = var.num_of_servers
+  machine_type = var.machine_type
+  zone         = data.google_compute_zones.available.names[count.index]
+  labels       = var.labels
+  allow_stopping_for_update = true
+
+  boot_disk {
+    source = google_compute_disk.os-disk[count.index].name
+    auto_delete = false
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+   metadata_startup_script = var.startup_script
 }
+
+resource "random_string" "random-identifier" {
+  length  = 4
+  special = false
+  upper   = false
+  lower   = true
+  number  = true
 }
+
+resource "google_compute_disk" "os-disk" {
+  count  = var.num_of_servers
+  name   = format("os-disk-%s-%d", random_string.random-identifier.result, count.index)
+  type   = "pd-ssd"
+  image  = var.image
+  labels = var.labels
+  size   = var.os_pd_ssd_size
+  zone   = data.google_compute_zones.available.names[count.index]
 }
