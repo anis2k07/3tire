@@ -1,5 +1,5 @@
 provider "google" {
-credentials = file("/home/anis/key/anis.json")
+credentials = file("anis.json")
 project = "anis020720"
 region = "us-central1"
 }
