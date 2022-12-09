@@ -1,5 +1,4 @@
 provider "google" {
-version = "3.5.0"
 project = "anis020720"
 region = "us-central1"
 zone = "us-central1-c"
